@@ -1,6 +1,5 @@
 package com.rabbit.dto;
 
-import com.rabbit.model.StepUi;
 import com.rabbit.model.TStepUiNew;
 import lombok.Data;
 

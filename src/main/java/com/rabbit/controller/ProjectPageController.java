@@ -89,7 +89,7 @@ public class ProjectPageController {
     @GetMapping("/copyPageById/{id}")
     @ApiOperation(value = "通过id复制页面")
     public ResponseInfo copyPageById(@PathVariable Long id) {
-        Boolean aBoolean = projectPageService.copyPageById(id);
-        return new ResponseInfo(true, aBoolean);
+        projectPageService.copyPageById(id);
+        return new ResponseInfo(true, "复制页面成功");
     }
 }

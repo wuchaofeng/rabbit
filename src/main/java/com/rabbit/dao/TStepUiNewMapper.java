@@ -1,6 +1,11 @@
 package com.rabbit.dao;
 
-import com.rabbit.dto.StepUiNewDto;import com.rabbit.model.TStepUiNew;import org.apache.ibatis.annotations.Param;import org.apache.ibatis.annotations.Select;import java.util.List;
+import com.rabbit.dto.StepUiNewDto;
+import com.rabbit.model.TStepUiNew;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 public interface TStepUiNewMapper {
     int deleteByPrimaryKey(Long id);
@@ -21,4 +26,12 @@ public interface TStepUiNewMapper {
 
     @Select("SELECT t1.by_type,t1.by_value,t.* FROM t_step_ui_new t LEFT JOIN t_page_element t1 ON t.element_id = t1.id WHERE  t.testcase_id = #{testcaseId} order by t.sort")
     List<StepUiNewDto> findDtoByTestcaseId(@Param("testcaseId") Long testcaseId);
+
+    int insertList(@Param("list") List<TStepUiNew> list);
+
+    List<TStepUiNew> findByActionTypeAndElementId(@Param("actionType")String actionType,@Param("elementId")Long elementId);
+
+
+
+
 }

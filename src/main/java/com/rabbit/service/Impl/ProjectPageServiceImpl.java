@@ -8,6 +8,7 @@ import com.rabbit.dao.ProjectPageDtoMapper;
 import com.rabbit.dto.ProjectPageDto;
 import com.rabbit.model.PageElement;
 import com.rabbit.utils.UUIDUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,7 +82,7 @@ public class ProjectPageServiceImpl implements ProjectPageService {
 
     @Transactional
     @Override
-    public Boolean copyPageById(Long id) {
+    public void copyPageById(Long id) {
         ProjectPage projectPage = projectPageMapper.findById(id);
         if (projectPage == null) {
             throw new IllegalArgumentException("该页面元素已删除");
@@ -90,12 +91,13 @@ public class ProjectPageServiceImpl implements ProjectPageService {
         projectPage.setPageName(newPageName);
         projectPageMapper.insertSelective(projectPage);
         List<PageElement> pageElements = pageElementMapper.findByPageId(id);
-        for (PageElement pageElement : pageElements) {
-            pageElement.setId(null);
-            pageElement.setPageId(projectPage.getId());
+        if (CollectionUtils.isNotEmpty(pageElements)) {
+            for (PageElement pageElement : pageElements) {
+                pageElement.setId(null);
+                pageElement.setPageId(projectPage.getId());
+            }
+            pageElementMapper.insertList(pageElements);
         }
-        pageElementMapper.insertList(pageElements);
-        return true;
     }
 
     private String generateNewPageName(Long projectId, String pageName) {

@@ -22,4 +22,8 @@ public interface TTestcaseUiNewMapper {
     List<TTestcaseUiNew> findByNameAndProjectId(@Param("name") String name, @Param("projectId") Long projectId);
 
     List<TTestcaseUiNew> findByNameAndProjectIdAndIdNot(@Param("name") String name, @Param("projectId") Long projectId, @Param("notId") Long notId);
+
+    List<TTestcaseUiNew> findByProjectIdAndCaseTypeAndName(@Param("projectId")Long projectId,@Param("caseType")Long caseType,@Param("name")String name);
+
+
 }

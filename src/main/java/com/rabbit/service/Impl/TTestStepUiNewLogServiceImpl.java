@@ -80,7 +80,7 @@ public class TTestStepUiNewLogServiceImpl implements TTestStepUiNewLogService {
     }
 
     @Override
-    public String getReportHtml(Long logId) {
+    public String getReportHtml(Long logId, String language) {
         TTestSuiteUiLog planIdCountInfo = testSuiteUiLogMapper.findByPlanIdCount(logId);
         TTestPlanUiNewLog tTestPlanUiNewLog = tTestPlanUiNewLogMapper.selectByPrimaryKey(logId);
         List<TestcaseUiNewLogDto> tTestCaseUiNewLogs = testCaseUiNewLogMapper.findDtoByPlanLogId(logId);
@@ -118,15 +118,19 @@ public class TTestStepUiNewLogServiceImpl implements TTestStepUiNewLogService {
         model.put("planLog", tTestPlanUiNewLog);
         model.put("dataList", tTestCaseUiNewLogs);
         try {
-            process = FreemarkerUtil.process("web-report-en.ftl", model);
+            if (language.equals("en")) {
+                process = FreemarkerUtil.process("web-report-en.ftl", model);
+            } else {
+                process = FreemarkerUtil.process("web-report-zh.ftl", model);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            sendMailSevice.sendMail("237371257@qq.com", "测试邮件", "邮件内容", "附件.html", process);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
+//        try {
+//            sendMailSevice.sendMail("237371257@qq.com", "测试邮件", "邮件内容", "附件.html", process);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        return process;
     }
 }

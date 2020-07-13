@@ -26,7 +26,7 @@ public interface ProjectPageService {
 
     PageInfo<ProjectPageDto> findDtoByAllwithPage(int page, int pageSize, ProjectPage projectPage);
 
-    Boolean copyPageById(Long id) ;
+    void copyPageById(Long id) ;
 }
 
 

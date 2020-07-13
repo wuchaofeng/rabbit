@@ -25,6 +25,10 @@ public interface PageElementService {
     List<PageElement> findByPageIdAndElementNameAndIdNot(Long pageId, String elementName, Long notId);
 
     List<PageElement> findByProjectId(Long projectId);
+
+    void copyElemenById(Long id);
+
+    void batchSaveElements(List<PageElement> pageElements);
 }
 
 

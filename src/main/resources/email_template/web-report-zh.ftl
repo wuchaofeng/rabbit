@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <!-- <meta charset="UTF-8"> -->
     <title></title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue"></script> <!--在上-->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <script type="text/javascript" src="https://unpkg.com/element-ui/lib/index.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css">
 </head>
 <body>
@@ -156,6 +151,12 @@
     </div>
 </div>
 </body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
 <script>
     Vue.component('case-detail', {
         // 步骤1、父组件通过props向下传递数据数组list给子组件，子组件需要通过props声明注册‘prop’;（注册的prop可以和数据不同名）

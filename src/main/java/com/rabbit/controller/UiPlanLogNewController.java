@@ -2,13 +2,21 @@ package com.rabbit.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
+import com.rabbit.config.RabbitConfig;
 import com.rabbit.model.*;
 import com.rabbit.service.*;
+import com.rabbit.utils.ZipUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * ui自动化日志相关接口
@@ -23,19 +31,13 @@ public class UiPlanLogNewController {
     private TTestPlanUiNewLogService testPlanUiLogService;
 
     @Autowired
-    private TTestBusinessUiLogService testBusinessUiLogService;
-
-    @Autowired
-    private  TTestSuiteUiLogService testSuiteUiLogService;
-
-    @Autowired
-    private TTestCaseUiLogService testCaseUiLogService;
+    private TTestSuiteUiLogService testSuiteUiLogService;
 
     @Autowired
     private TTestCaseUiNewLogService testCaseUiNewLogService;
 
     @Autowired
-    private  TTestStepUiNewLogService testStepUiNewLogService;
+    private TTestStepUiNewLogService testStepUiNewLogService;
 
     @GetMapping("/planListPage")
     @ApiOperation(value = "获取分页带参列表")
@@ -52,18 +54,6 @@ public class UiPlanLogNewController {
         return new ResponseInfo(true, testPlanUiLogService.selectByPrimaryKey(planId));
     }
 
-    @GetMapping("/suiteById/{id}")
-    @ApiOperation(value = "获取单条ui业务流日志")
-    public ResponseInfo getBusinessById(@PathVariable("id") Long businessId) {
-        return new ResponseInfo(true, testBusinessUiLogService.selectByPrimaryKey(businessId));
-    }
-
-    @GetMapping("/caseById/{id}")
-    @ApiOperation(value = "获取单条ui用例日志")
-    public ResponseInfo getCaseById(@PathVariable("id") Long businessId) {
-        return new ResponseInfo(true, testCaseUiLogService.selectByPrimaryKey(businessId));
-    }
-
     @DeleteMapping("/removePlan/{planId}")
     @ApiOperation(value = "删除测试计划日志")
     public ResponseInfo delPlanLog(@PathVariable("planId") Long planId) {
@@ -71,14 +61,6 @@ public class UiPlanLogNewController {
         return new ResponseInfo(true, "删除测试计划日志成功");
     }
 
-    @GetMapping("/suiteistPage")
-    @ApiOperation(value = "获取分页带参业务流日志列表")
-    public ResponseInfo getBusinessListPageByPlanId(@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize, @RequestParam(value = "serchData") String serchData) {
-        JSONObject jsonObject = JSONObject.parseObject(serchData);
-        TTestBusinessUiLog testBusinessUiLog = JSONObject.toJavaObject(jsonObject, TTestBusinessUiLog.class);
-        PageInfo pageInfo = testBusinessUiLogService.findByAllwithPage(pageNum, pageSize, testBusinessUiLog);
-        return new ResponseInfo(true, pageInfo);
-    }
 
     @GetMapping("/suiteInfo/{planId}")
     @ApiOperation(value = "获取测试计划用例汇总信息信息")
@@ -102,6 +84,26 @@ public class UiPlanLogNewController {
         TTestStepUiNewLog testStepUiLog = JSONObject.toJavaObject(jsonObject, TTestStepUiNewLog.class);
         PageInfo pageInfo = testStepUiNewLogService.findByAllwithPage(pageNum, pageSize, testStepUiLog);
         return new ResponseInfo(true, pageInfo);
+    }
+
+    @GetMapping("/downloadReport")
+    @ApiOperation(value = "下载离线测试报告")
+    public void download(@RequestParam(value = "logId") Long logId, @RequestParam(value = "language") String language,
+                         HttpServletRequest request, HttpServletResponse resp) throws IOException {
+        try {
+            String reportText = testStepUiNewLogService.getReportHtml(logId, language);
+            resp.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            resp.setCharacterEncoding("UTF-8");
+            resp.setHeader("Content-Disposition",
+                    "attachment;filename=" + java.net.URLEncoder.encode("Web-test-report.html", "UTF-8"));
+            resp.getOutputStream().write(reportText.getBytes());
+        } catch (Exception e) {
+            log.error("文件[ {} ]下载错误", "测试文件======");
+            throw new IllegalArgumentException("下载失败:" + e.getMessage());
+        } finally {
+            resp.getOutputStream().flush();
+            resp.getOutputStream().close();
+        }
     }
 
 }

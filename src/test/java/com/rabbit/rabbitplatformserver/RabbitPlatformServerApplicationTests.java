@@ -2,6 +2,7 @@ package com.rabbit.rabbitplatformserver;
 
 import com.rabbit.dto.UiTemplateParams;
 import com.rabbit.service.SendMailSevice;
+import com.rabbit.service.TTestStepUiNewLogService;
 import com.rabbit.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +25,19 @@ public class RabbitPlatformServerApplicationTests {
     @Autowired
     private SendMailSevice sendMailSevice;
 
+    @Resource
+    private TTestStepUiNewLogService testStepUiNewLogService;
+
 
     @Test
     public void contextLoads() {
         System.out.println("重置密码成功测试=====");
         userService.resetPassword("test", "123456");
+    }
+
+    @Test
+    public void testReport() {
+        testStepUiNewLogService.getReportHtml(72L,"en");
     }
 
     @Test

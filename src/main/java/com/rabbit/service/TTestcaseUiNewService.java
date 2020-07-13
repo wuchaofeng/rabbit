@@ -40,6 +40,10 @@ public interface TTestcaseUiNewService {
     TestcaseUiNewDto selectByDtoByPrimaryKeyAndCaseType(Long id, Integer caseType);
 
     List<TTestcaseUiNew> findByCaseTypeAndProjectId(Long caseType, Long projectId);
+
+    TTestcaseUiNew copyCaseById(Long id);
+
+    TTestcaseUiNew businesstoCase(Long id);
 }
 
 

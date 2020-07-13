@@ -2,19 +2,15 @@ package com.rabbit.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
-import com.rabbit.dto.TestcaseUiDto;
 import com.rabbit.dto.TestcaseUiNewDto;
 import com.rabbit.model.ErrorInfo;
 import com.rabbit.model.ResponseInfo;
 import com.rabbit.model.TTestcaseUiNew;
-import com.rabbit.model.TestcaseUi;
 import com.rabbit.service.TTestcaseUiNewService;
-import com.rabbit.service.TestcaseUiService;
-import com.rabbit.utils.UserUtil;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 /**
  * 用例相关接口
@@ -36,7 +32,7 @@ public class UiTestCaseNewController {
 
     @GetMapping("/allBusiness/{id}")
     public ResponseInfo getList(@PathVariable Long id) {
-        return new ResponseInfo(true, testcaseUiService.findByCaseTypeAndProjectId(2L,id));
+        return new ResponseInfo(true, testcaseUiService.findByCaseTypeAndProjectId(2L, id));
     }
 
     @PostMapping("/add")
@@ -47,8 +43,8 @@ public class UiTestCaseNewController {
 
     @PutMapping("/edit")
     public ResponseInfo editProject(@RequestBody TestcaseUiNewDto testcaseUi) {
-        if (testcaseUi.getTestSteps().size() ==0){
-            return new ResponseInfo(false, new ErrorInfo(20,"用例步骤不能为空"));
+        if (testcaseUi.getTestSteps().size() == 0) {
+            return new ResponseInfo(false, new ErrorInfo(20, "用例步骤不能为空"));
         }
         testcaseUiService.edit(testcaseUi);
         return new ResponseInfo(true, testcaseUi);
@@ -62,11 +58,24 @@ public class UiTestCaseNewController {
 
     @GetMapping("/{id}")
     public ResponseInfo getById(@PathVariable Long id) {
-        return new ResponseInfo(true, testcaseUiService.selectByDtoByPrimaryKeyAndCaseType(id,1));
+        return new ResponseInfo(true, testcaseUiService.selectByDtoByPrimaryKeyAndCaseType(id, 1));
     }
 
     @GetMapping("/business/{id}")
     public ResponseInfo getBusinessById(@PathVariable Long id) {
-        return new ResponseInfo(true, testcaseUiService.selectByDtoByPrimaryKeyAndCaseType(id,2));
+        return new ResponseInfo(true, testcaseUiService.selectByDtoByPrimaryKeyAndCaseType(id, 2));
+    }
+
+    @GetMapping("/copyCaseById/{id}")
+    @ApiOperation(value = "通过id复制页面")
+    public ResponseInfo copyCaseById(@PathVariable Long id) {
+        testcaseUiService.copyCaseById(id);
+        return new ResponseInfo(true, "复制成功");
+    }
+
+    @GetMapping("/businessToCase/{id}")
+    @ApiOperation(value = "业务转用例")
+    public ResponseInfo businesstoCase(@PathVariable Long id) {
+        return new ResponseInfo(true, testcaseUiService.businesstoCase(id));
     }
 }

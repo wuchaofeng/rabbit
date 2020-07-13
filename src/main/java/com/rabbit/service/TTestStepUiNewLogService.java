@@ -20,5 +20,5 @@ public interface TTestStepUiNewLogService {
 
     PageInfo<TTestStepUiNewLog> findByAllwithPage(int page, int pageSize, TTestStepUiNewLog tTestStepUiNewLog);
 
-    String getReportHtml(Long logId);
+    String getReportHtml(Long logId,String language);
 }

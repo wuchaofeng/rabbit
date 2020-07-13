@@ -1,24 +1,25 @@
 package com.rabbit.service.Impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rabbit.dao.TStepUiNewMapper;
 import com.rabbit.dao.TSuiteCaseUiMapper;
 import com.rabbit.dao.TTestcaseUiNewDtoMapper;
 import com.rabbit.dto.TestcaseUiNewDto;
-import com.rabbit.model.TStepUiNew;
-import com.rabbit.model.TSuiteCaseUi;
+import com.rabbit.model.*;
 import com.rabbit.service.TFileInfoService;
 import com.rabbit.service.TStepUiNewService;
+import com.rabbit.utils.UUIDUtil;
 import com.rabbit.utils.UserUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
 import com.rabbit.dao.TTestcaseUiNewMapper;
-import com.rabbit.model.TTestcaseUiNew;
 import com.rabbit.service.TTestcaseUiNewService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,6 +170,69 @@ public class TTestcaseUiNewServiceImpl implements TTestcaseUiNewService {
     @Override
     public List<TTestcaseUiNew> findByCaseTypeAndProjectId(Long caseType, Long projectId) {
         return tTestcaseUiNewMapper.findByCaseTypeAndProjectId(caseType, projectId);
+    }
+
+    @Override
+    public TTestcaseUiNew businesstoCase(Long id) {
+        TTestcaseUiNew tTestcaseUiNew = tTestcaseUiNewMapper.selectByPrimaryKey(id);
+        if (tTestcaseUiNew == null) {
+            throw new IllegalArgumentException("该用例已删除");
+        }
+        List<TStepUiNew> uiAction12 = stepUiNewMapper.findByActionTypeAndElementId("uiAction12", id);
+        if (CollectionUtils.isEmpty(uiAction12)) {
+            //没有被引用直接转
+            tTestcaseUiNew.setCaseType(1L);
+            tTestcaseUiNewMapper.updateByPrimaryKey(tTestcaseUiNew);
+            return tTestcaseUiNew;
+        } else {
+            //如果被引用复制
+            TTestcaseUiNew tTestcaseUiNew1 = copyCaseById(id, 1L);
+            tTestcaseUiNew.setRemark("xxxx");
+            return tTestcaseUiNew1;
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public TTestcaseUiNew copyCaseById(Long id) {
+        return copyCaseById(id, 1L);
+    }
+
+    private TTestcaseUiNew copyCaseById(Long id, Long type) {
+        TTestcaseUiNew tTestcaseUiNew = tTestcaseUiNewMapper.selectByPrimaryKey(id);
+        if (tTestcaseUiNew == null) {
+            throw new IllegalArgumentException("该用例已删除");
+        }
+        String newName = generateNewCaseName(tTestcaseUiNew.getProjectId(), tTestcaseUiNew.getCaseType(), tTestcaseUiNew.getName());
+        tTestcaseUiNew.setName(newName);
+        tTestcaseUiNew.setCreateBy(UserUtil.getLoginUser().getNickname());
+        tTestcaseUiNew.setCaseType(type);
+        tTestcaseUiNewMapper.insertSelective(tTestcaseUiNew);
+        List<TStepUiNew> stepUiNews = stepUiNewMapper.findByTestcaseId(id);
+        if (CollectionUtil.isNotEmpty(stepUiNews)) {
+            for (TStepUiNew stepUiNew : stepUiNews) {
+                stepUiNew.setId(null);
+                stepUiNew.setTestcaseId(tTestcaseUiNew.getId());
+            }
+            stepUiNewMapper.insertList(stepUiNews);
+        }
+        return tTestcaseUiNew;
+    }
+
+    private String generateNewCaseName(Long projectId, Long type, String name) {
+        int i = 1;
+        while (true) {
+            name = name + "_temp";
+            List<TTestcaseUiNew> byProjectIdAndPageName = tTestcaseUiNewMapper.findByProjectIdAndCaseTypeAndName(projectId, type, name);
+            if (CollectionUtil.isEmpty(byProjectIdAndPageName)) {
+                return name;
+            }
+            i++;
+            if (i >= 10) {
+                return name + UUIDUtil.getUUID();
+            }
+        }
     }
 }
 
